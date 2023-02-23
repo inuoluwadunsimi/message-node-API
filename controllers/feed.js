@@ -2,20 +2,19 @@ const { validationResult } = require('express-validator/check');
 const Post = require('../models/post');
 
 exports.getPosts = (req, res, next) => {
-  res.status(200).json({
-    posts: [
-      {
-        _id: 1,
-        title: 'The best way to die',
-        content: 'This is about an imaginary movie I want to write',
-        imageUrl: 'images/gooder.jpeg',
-        creator: {
-          name: 'Idan',
-        },
-        createdAt: new Date(),
-      },
-    ],
-  });
+  Post.find()
+    .then((posts) => {
+      res.status(200).json({
+        message: 'Fetched posts successfully',
+        posts: posts,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
 };
 
 exports.createPost = (req, res, next) => {
@@ -25,9 +24,13 @@ exports.createPost = (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
+  if (!req.file) {
+    const error = new Error('No image provided');
+    error.statusCode = 422;
+    throw error;
+  }
 
   const imageUrl = req.file.path;
-
   const title = req.body.title;
   const content = req.body.content;
   const post = new Post({
@@ -46,9 +49,31 @@ exports.createPost = (req, res, next) => {
       });
     })
     .catch((err) => {
-        if(!err.statusCode){
-            err.statusCode = 500
-        }
-        next(err)
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.getOnePost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then((post) => {
+      if (!post) {
+        const error = new Error('No post found');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        post: post,
+        message: 'Post successfully fetched',
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
     });
 };
