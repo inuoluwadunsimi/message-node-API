@@ -2,19 +2,22 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const cors = require('cors')
 
 require('dotenv').config();
 
 const feedRoutes = require('./routes/feed');
 
 const app = express();
+app.use(cors())
+
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'images');
   },
   filename: (req, file, cb) => {
-    cb(null, `${new Date.toString()} - ${file.originalname}`);
+    cb(null, new Date().toISOString() + '-' + file.originalname);
   },
 });
 
@@ -36,18 +39,19 @@ app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 );
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-requested-With, Content-Type, Accept'
-  );
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE');
-    return res.status(200).json({});
-  }
-  next();
-});
+app.use(cors())
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header(
+//     'Access-Control-Allow-Headers',
+//     'Origin, X-requested-With, Content-Type, Accept'
+//   );
+//   if (req.method === 'OPTIONS') {
+//     res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+//     return res.status(200).json({});
+//   }
+//   next();
+// });
 
 app.use('/feed', feedRoutes);
 
