@@ -2,6 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const User = require('../models/user');
 const router = express.Router();
+// const cors = require('cors')
 
 const authController = require('../controllers/auth');
 
@@ -26,3 +27,6 @@ router.put(
 );
 
 module.exports = router;
+
+
+router.post('/login',authController.postLogin)

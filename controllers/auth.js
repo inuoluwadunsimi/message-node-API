@@ -37,7 +37,7 @@ exports.postSignup = (req, res, next) => {
     .then((result) => {
       res.status(201).json({
         message: 'Successfully signed up',
-        userId: result,
+        userId: result._id,
       });
       return transporter.sendMail({
         to: email,
@@ -45,6 +45,36 @@ exports.postSignup = (req, res, next) => {
         subject: 'Signup Succeded',
         html: '<h1> You successfully signed up, welcome to the goodlife  </h1>',
       });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postLogin = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  let loadedUser
+
+  User.findOne({ email: email })
+    .then((user) => {
+      if (!user) {
+        const error = new Error(
+          'User with this email does not exist,create account instead'
+        );
+        error.statusCode = 401;
+        throw error;
+      }
+      loadedUser = user
+      return bcrypt.compare(user.password, password)
+    })
+    .then(isEqual=>{
+      if(!isEqual){
+        const error = new Error('Password is wrong')
+        error.statusCode = 401
+        throw error
+      }
+      
     })
     .catch((err) => {
       next(err);
