@@ -16,7 +16,6 @@ router.post(
   feedController.createPost
 );
 
-module.exports = router;
 
 router.get('/post/:postId', feedController.getOnePost);
 
@@ -28,6 +27,9 @@ router.put(
     body('content').trim().isLength({ min: 5 }),
   ],
   feedController.updatePost
-);
+  );
+  
+  router.delete('/post/:postId', cors(), feedController.deletePost);
 
-router.delete('/post/:postId', cors(), feedController.deletePost);
+  
+  module.exports = router;
