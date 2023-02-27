@@ -1,15 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
 
-require('dotenv').config();
-
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
 
 const app = express();
+mongoose.set('strictQuery', false);
+
 app.use(cors());
 
 const fileStorage = multer.diskStorage({
@@ -39,7 +40,7 @@ app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 );
 
-app.use(cors());
+// app.use(cors());
 // app.use((req, res, next) => {
 //   res.header('Access-Control-Allow-Origin', '*');
 //   res.header(

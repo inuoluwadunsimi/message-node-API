@@ -1,8 +1,9 @@
+require('dotenv').config();
 const User = require('../models/user');
 const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
-require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -29,8 +30,8 @@ exports.postSignup = (req, res, next) => {
     .then((hashedPassword) => {
       const user = new User({
         email: email,
-        name: name,
         password: hashedPassword,
+        name: name,
       });
       return user.save();
     })
@@ -51,30 +52,38 @@ exports.postSignup = (req, res, next) => {
     });
 };
 
-exports.postLogin = (req, res, next) => {
+exports.postLogin = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  let loadedUser
-
-  User.findOne({ email: email })
+  let loadedUser;
+  User.findOne({ email })
     .then((user) => {
       if (!user) {
-        const error = new Error(
-          'User with this email does not exist,create account instead'
-        );
+        const error = new Error('User with this email does not exist');
         error.statusCode = 401;
         throw error;
       }
-      loadedUser = user
-      return bcrypt.compare(user.password, password)
+      loadedUser = user;
+      return bcrypt.compare(password, user.password);
     })
-    .then(isEqual=>{
-      if(!isEqual){
-        const error = new Error('Password is wrong')
-        error.statusCode = 401
-        throw error
+    .then((isEqual) => {
+      if (!isEqual) {
+        const error = new Error('Password is wrong');
+        error.statusCode = 401;
+        throw error;
       }
-      
+      const token = jwt.sign(
+        {
+          email: loadedUser.email,
+          userId: loadedUser._id.toString(),
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+      res.status(200).json({
+        token: token,
+        userId: loadedUser._id.toString(),
+      });
     })
     .catch((err) => {
       next(err);
