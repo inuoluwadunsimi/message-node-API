@@ -9,7 +9,8 @@ const feedController = require('../controllers/feed');
 router.get('/posts', isAuth, cors(), feedController.getPosts);
 
 router.post(
-  '/post',isAuth,
+  '/post',
+  isAuth,
   [
     body('title').trim().isLength({ min: 5 }),
     body('content').trim().isLength({ min: 5 }),
@@ -17,10 +18,11 @@ router.post(
   feedController.createPost
 );
 
-router.get('/post/:postId', isAuth,feedController.getOnePost);
+router.get('/post/:postId', isAuth, feedController.getOnePost);
 
 router.put(
-  '/post/:postId',isAuth,
+  '/post/:postId',
+  isAuth,
   cors(),
   [
     body('title').trim().isLength({ min: 5 }),
@@ -29,6 +31,7 @@ router.put(
   feedController.updatePost
 );
 
-router.delete('/post/:postId', isAuth,cors(), feedController.deletePost);
+router.delete('/post/:postId', isAuth, cors(), feedController.deletePost);
+
 
 module.exports = router;

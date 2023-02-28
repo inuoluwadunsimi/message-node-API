@@ -127,6 +127,11 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+      if (post.creator.toString() !== req.userId.toString()) {
+        const error = new Error('user is unauthorized');
+        error.statusCode = 403;
+        throw error;
+      }
       if (imageUrl !== post.imageUrl) {
         fileHelper.clearImage(post.imageUrl);
       }
@@ -149,20 +154,13 @@ exports.updatePost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
   const postId = req.params.postId;
 
-  //   Post.findByIdAndDelete(postId)
-  //     .then((result) => {
-  //       res.status(200).json({
-  //         message: 'Post deleted successfully',
-  //         post: result,
-  //       });
-  //     })
-  //     .catch((err) => {
-  //       next(err);
-  //     });
-
   Post.findById(postId)
     .then((post) => {
-      //check user status
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error('user is unauthorized');
+        error.statusCode = 403;
+        throw error;
+      }
       if (!post) {
         const error = new Error('post not found');
         error.statusCode = 404;
@@ -173,13 +171,20 @@ exports.deletePost = (req, res, next) => {
       return Post.findByIdAndDelete(postId);
     })
     .then((result) => {
+      User.findById(req.userId);
+    })
+    .then((user) => {
+      user.posts.pull(postId);
+      return user.save();
+    })
+    .then((result) => {
       console.log(result);
       res.status(200).json({
         message: 'Post deleted successfully',
-        post: result,
       });
     })
     .catch((err) => {
       next(err);
     });
 };
+

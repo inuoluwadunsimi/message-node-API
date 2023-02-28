@@ -52,7 +52,7 @@ exports.postSignup = (req, res, next) => {
     });
 };
 
-exports.postLogin =  (req, res, next) => {
+exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   let loadedUser;
@@ -83,6 +83,50 @@ exports.postLogin =  (req, res, next) => {
       res.status(200).json({
         token: token,
         userId: loadedUser._id.toString(),
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getStatus = (req, res, next) => {
+  User.findById(req.userId)
+    .then((user) => {
+      if (!user) {
+        const error = new Error('No user found');
+        error.statusCode = 401;
+        throw error;
+      }
+
+      req.status(200).json({
+        message: 'status found',
+        status: user.status,
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.updateStatus = (req, res, next) => {
+  const status = req.body.status;
+
+  User.findById(req.userId)
+    .then((user) => {
+      if (!user) {
+        const error = new Error('No user found');
+        error.statusCode = 401;
+        throw error;
+      }
+
+      user.status = status;
+      user.save();
+    })
+    .then((result) => {
+      res.status(201).json({
+        message: 'Status updated',
+        status: result,
       });
     })
     .catch((err) => {
