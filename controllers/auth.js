@@ -52,7 +52,7 @@ exports.postSignup = (req, res, next) => {
     });
 };
 
-exports.postLogin = async (req, res, next) => {
+exports.postLogin =  (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   let loadedUser;

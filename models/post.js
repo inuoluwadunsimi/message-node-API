@@ -15,8 +15,9 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     creator: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref:'User'
     },
   },
   { timestamps: true }

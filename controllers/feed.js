@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const Post = require('../models/post');
 const fileHelper = require('../helpers/file');
+const User = require('../models/user');
 
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -11,14 +12,14 @@ exports.getPosts = (req, res, next) => {
     .then((count) => {
       totalItems = count;
       return Post.find()
-      .skip((currentPage - 1) * perPage)
-      .limit(perPage)
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
     })
     .then((posts) => {
       res.status(200).json({
         message: 'Fetched posts successfully',
         posts: posts,
-        totalItems:totalItems
+        totalItems: totalItems,
       });
     })
     .catch((err) => {
@@ -42,19 +43,32 @@ exports.createPost = (req, res, next) => {
   const imageUrl = req.file.path;
   const title = req.body.title;
   const content = req.body.content;
+  let creator;
   const post = new Post({
     title: title,
     imageUrl: imageUrl,
     content: content,
-    creator: 'OG waya waya for this one',
+    creator: req.userId,
   });
   post
     .save()
     .then((result) => {
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      creator = user;
+      user.posts.push(post);
+      return user.save();
+    })
+    .then((result) => {
       console.log(result);
       res.status(201).json({
         message: 'post created successfully',
-        post: result,
+        post: post,
+        creator: {
+          _id: creator._id,
+          name: creator.name,
+        },
       });
     })
     .catch((err) => {
