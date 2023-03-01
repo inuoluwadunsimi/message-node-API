@@ -26,11 +26,13 @@ router.put(
   ],
   authController.postSignup
 );
+router.post('/login',authController.postLogin)
 
 router.get('/status',isAuth, authController.getStatus);
 
-router.patch('/status',isAuth,authController.updateStatus)
+router.patch('/status',isAuth,[
+  body('status').trim()
+],authController.updateStatus)
 
-router.post('/login',authController.postLogin)
 
 module.exports = router;
