@@ -65,8 +65,8 @@ exports.postLogin = async (req, res, next) => {
     }
     const token = jwt.sign(
       {
-        email: loadedUser.email,
-        userId: loadedUser._id.toString(),
+        email: user.email,
+        userId: user._id.toString(),
       },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
@@ -89,7 +89,7 @@ exports.getStatus = async (req, res, next) => {
       throw error;
     }
 
-    req.status(200).json({
+    res.status(200).json({
       message: 'status found',
       status: user.status,
     });
