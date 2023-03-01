@@ -31,7 +31,7 @@ exports.postSignup = async (req, res, next) => {
       password: hashedPassword,
       name: name,
     });
-    const result = user.save();
+    const result = await user.save();
     res.status(201).json({
       message: 'Successfully signed up',
       userId: result._id,
@@ -110,7 +110,7 @@ exports.updateStatus = async (req, res, next) => {
     }
 
     user.status = status;
-    const result = user.save();
+    const result = await user.save();
     res.status(201).json({
       message: 'Status updated',
       status: result,

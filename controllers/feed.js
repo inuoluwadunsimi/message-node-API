@@ -8,7 +8,7 @@ exports.getPosts = async (req, res, next) => {
   const perPage = 2;
   try {
     const totalItems = await Post.find().countDocuments();
-    const posts = await Post.find()
+    const posts = await Post.find().populate('creator')
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
@@ -120,10 +120,10 @@ exports.updatePost = async (req, res, next) => {
     post.title = title;
     post.imageUrl = imageUrl;
     post.content = content;
-    post.save();
+    const updatedPost = await post.save();
     res.status(200).json({
       message: 'Post successfully updated',
-      post: post,
+      post: updatedPost,
     });
   } catch (err) {
     next(err);
@@ -147,7 +147,7 @@ exports.deletePost = async (req, res, next) => {
 
     fileHelper.clearImage(post.imageUrl);
     Post.findByIdAndDelete(postId);
-    const user = User.findById(req.userId);
+    const user = await User.findById(req.userId);
     user.posts.pull(postId);
     user.save();
     res.status(200).json({
