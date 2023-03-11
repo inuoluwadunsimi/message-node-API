@@ -54,7 +54,7 @@ exports.postLogin = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) {
       const error = new Error('User with this email does not exist');
-      error.statusCode = 401;
+      error.statusCode = 404;
       throw error;
     }
     const isEqual = await bcrypt.compare(password, user.password);

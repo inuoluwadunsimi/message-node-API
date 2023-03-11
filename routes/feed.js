@@ -15,7 +15,7 @@ router.post(
     body('title').trim().isLength({ min: 5 }),
     body('content').trim().isLength({ min: 5 }),
   ],
-  feedController.createPost
+  lfeedController.createPost
 );
 
 router.get('/post/:postId', isAuth, feedController.getOnePost);

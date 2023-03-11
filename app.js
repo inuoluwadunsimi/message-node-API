@@ -4,6 +4,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
+const helmet = require('helmet')
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
@@ -35,6 +36,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 app.use(express.json());
+app.use(helmet())
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')

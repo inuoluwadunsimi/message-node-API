@@ -6,6 +6,6 @@ const clearImage = (filePath) => {
   fs.unlink(filePath, (err) => {
     console.log(err);
   });
-};
+};s
 
 exports.clearImage = clearImage;

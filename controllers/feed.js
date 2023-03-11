@@ -119,6 +119,7 @@ exports.updatePost = async (req, res, next) => {
       const error = new Error('user is unauthorized');
       error.statusCode = 403;
       throw error;
+      
     }
     if (imageUrl !== post.imageUrl) {
       fileHelper.clearImage(post.imageUrl);
